@@ -1,0 +1,77 @@
+<HTML>
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <link rel="stylesheet" href="http://code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
+    <script src="http://code.jquery.com/jquery-latest.min.js" type="text/javascript"></script>
+    <script src="http://code.jquery.com/ui/1.11.4/jquery-ui.min.js" type="text/javascript"></script>
+    <style>
+        #toolbox { position:absolute; left:50px; top:50px; width:200px; height:380px; display:block; z-index:9999; background:rgba(0,0,0,0.75); border-width:2px; border-style:outset;}
+        #toolbox span.titlebar      { cursor : pointer; display: inline-block; }
+        #toolbox span.propertyname  { width:40%; height:auto; display:inline-block; color:white; font-size:0.9em; margin:0px; padding:5px 5px;}
+        #toolbox input.propertyvalue{ width:50%; height:auto; display:inline-block; margin:0px 0px; padding:0px;}
+        #new_filelist li { cursor:pointer; border-bottom:solid 1px gray; padding:0.25em; font-size:0.9em; min-width:100px; }
+        #new_filelist li.label { background-color:#888; color:white; text-align:center; }
+        #new_ok     { position:absolute; bottom:0px; right:100px; width:60px; height:20px; }
+        #new_cancel { position:absolute; bottom:0px; right:0px; width:60px; height:20px; }
+    </style>
+    <script>
+        document.oncontextmenu = function () { return false; };
+        $(document).ready(function () {
+            $("#toolbox").draggable();
+        });
+
+        function updateNewPreviewImage(e)
+        {
+            $("#new_preview").attr("src", "file://c:\\ProgramData\\FBookStudio\\NexBook35\\skins\\" + e.innerHTML);
+        }
+
+        function openDiv(e) {
+            $(e).show();
+        }
+
+        function closeDiv(e)
+        {
+            $(e).hide();
+        }
+
+    </script>
+</head>
+<BODY style="background:#282828; margin:0px; padding:0px; width:100%; height:100%; ">
+ 
+    <!-- 도구상자 -->
+    <div id="toolbox">
+        <span class="titlebar" style="text-align:center; padding:0.25em 0px; width:100%; height:auto; background:#000; color:white; border-bottom:1px solid #999; ">속성창</span>
+        <span class="propertyname" >Type</span><input class="propertyvalue" type="text" />
+        <span class="propertyname" >Id</span><input class="propertyvalue" type="text" />
+        <span class="propertyname" >Class</span><input class="propertyvalue" type="text" />
+        <span class="propertyname" >Text</span><input class="propertyvalue" type="text" />
+        <span class="propertyname" >TabIndex</span><input class="propertyvalue" type="text" />
+        <span class="propertyname" >Title</span><input class="propertyvalue" type="text" />
+        <span class="propertyname" >Src</span><input class="propertyvalue" type="text" />
+        <span class="propertyname" >Click</span><input class="propertyvalue" type="text" />
+        <span class="propertyname" >Visible</span><input class="propertyvalue" type="checkbox" />
+        <span class="propertyname" >Draggable</span><input class="propertyvalue" type="checkbox" />
+        <span class="propertyname" >Resizable</span><input class="propertyvalue" type="checkbox" />
+        <span class="propertyname" >Style</span><input class="propertyvalue" type="text" />
+    </div>
+
+    <!-- 스킨새로만들기창 영역 -->
+    <div id="wnd_new" style="background-color:#DDD; border-style:outset; border-width:2px; position:absolute; top:25%;left:25%; margin:0px; width:50%; height:50%; z-index:10000; display:none;">
+        <span style="width:100%; background-color:#333; border-style:outset; border-width:2px; height:20px; top:-1.5em; position:absolute; color:white; padding:0em 0em; ">새로 만들기</span>
+        <ul id="new_filelist" style="width:30%; height:100%; left:0px; position:absolute; border:1px solid black; overflow-x:hide; overflow-y:auto; list-style-type:none; padding:0px; margin:0px;">
+            <li onclick="updateNewPreviewImage(this)">item1</li>
+            <li onclick="updateNewPreviewImage(this)">item2</li>
+            <li onclick="updateNewPreviewImage(this)">item3</li>
+        </ul>
+        <img id="new_preview" src="" style="position:absolute; right:0px; width:70%; height:100%;" />
+        <input type="button" value="열기" id="new_ok"/>
+        <input type="button" value="취소" id="new_cancel" onclick="closeDiv('#wnd_new')"/>
+    </div>
+
+    <!-- 스킨표시 영역 -->
+    <div id="skinview" style="position:absolute; left:0px; top:0px; width:100%; height:100%; display:none; z-index:0; ">
+        <iframe src='file:///c:/ProgramData/FBookStudio/NexBook35/Designer/workspace/index.html' style="width:100%; height:100%;" />
+    </div>
+    
+</BODY>
+</HTML>
