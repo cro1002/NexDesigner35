@@ -3,7 +3,7 @@
 //
 
 #pragma once
-
+#include "SkinParser.h"
 
 // CNexBookDesigner35Dlg 대화 상자
 class CNexBookDesigner35Dlg : public CDHtmlDialog
@@ -25,12 +25,17 @@ public:
 
 	HRESULT OnNewOk(IHTMLElement *pElement);
 
+	HRESULT STDMETHODCALLTYPE TranslateAccelerator(LPMSG lpMsg, const GUID *, DWORD nCmdID);
+
 	BOOL FileCopy(CString strFrom, CString strTo);
 	
+	CComVariant CallJScript(const CString strFunc, const CString param);
 	CComVariant CallJScript(const CString strFunc, const CStringArray& paramArray);
 
 // 구현입니다.
 protected:
+	SkinParser		m_skinParser;
+	SKINDATAJS		m_dataJs;
 	IHTMLDocument2* m_htmlDoc = nullptr;
 	CMFCToolBar m_toolbar;
 	CMenu m_menu;

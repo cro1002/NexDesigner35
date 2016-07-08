@@ -6,6 +6,7 @@
 #include "NexBookDesigner3.5.h"
 #include "NexBookDesigner3.5Dlg.h"
 #include "afxdialogex.h"
+#include <functional>
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -148,7 +149,7 @@ void CNexBookDesigner35Dlg::OnPaint()
 		int cyIcon = GetSystemMetrics(SM_CYICON);
 		CRect rect;
 		GetClientRect(&rect);
-		int x = (rect.Width() - cxIcon + 1) / 2;
+		int x = (rect.Width()  - cxIcon + 1) / 2;
 		int y = (rect.Height() - cyIcon + 1) / 2;
 
 		// 아이콘을 그립니다.
@@ -228,11 +229,11 @@ HRESULT CNexBookDesigner35Dlg::OnNewOk(IHTMLElement* pElement)
 	// 폴더 생성
 	CreateDirectory(workpath, NULL);
 
+	// 로고이미지 복사
+	FileCopy(L"c:\\ProgramData\\FBookStudio\\NexBook35\\Designer\\template", L"c:\\ProgramData\\FBookStudio\\NexBook35\\Designer\\workspace\\assets\\theme\\images");
+
 	// 파일 복사
 	FileCopy(skinPath, workpath);
-
-	// 로고이미지 복사
-
 	
 	// 복사된 파일로 화면에 출력
 	hr = GetElement(L"skinview", &e);
@@ -252,7 +253,36 @@ HRESULT CNexBookDesigner35Dlg::OnNewOk(IHTMLElement* pElement)
 	arg.Add(L"#wnd_new");
 	CallJScript(L"closeDiv", arg);
 
+	m_dataJs.children.clear();
+	CString pathJs = workpath + CString(L"\\skin.js");
+	m_skinParser.LoadJS(pathJs.GetBuffer(), m_dataJs);
+
+	// m_dataJs 를 트리구조로 화면에 표시(type, id)
+	std::function<void(SKINDATAJS*, CString&)> MAKE_DATA = [&MAKE_DATA](SKINDATAJS* targetEl, CString& data) -> void {
+		data.AppendFormat(
+			targetEl->children.empty() ? L"<li><span class=\"file\">#%s(%s)</span></li>" : L"<li class=\"closed\"><span class=\"folder\">#%s(%s)</span><ul>",
+			targetEl->id.c_str(),
+			targetEl->type.c_str()
+		);
+		for (size_t i = 0; i < targetEl->children.size(); ++i) {
+			MAKE_DATA(targetEl->children[i].get(), data);
+			if (i == targetEl->children.size() - 1) {
+				data.Append(L"</ul></li>");
+			}
+		}
+		return;
+	};
+	CString treedata;
+	for (size_t i = 0; i < m_dataJs.children.size(); ++i) {
+		MAKE_DATA(m_dataJs.children[i].get(), treedata);
+	}
+	CallJScript(L"updateTreeview", treedata);
 	return S_OK;
+}
+
+HRESULT STDMETHODCALLTYPE CNexBookDesigner35Dlg::TranslateAccelerator(LPMSG lpMsg, const GUID *pguidCmdGroup, DWORD nCmdID)
+{
+	return (lpMsg && lpMsg->message == WM_KEYDOWN && lpMsg->wParam == VK_F5) ? S_OK : CDHtmlDialog::TranslateAccelerator(lpMsg, pguidCmdGroup, nCmdID);
 }
 
 int CNexBookDesigner35Dlg::OnCreate(LPCREATESTRUCT lpCreateStruct)
@@ -328,10 +358,6 @@ void CNexBookDesigner35Dlg::OnFileNew()
 void CNexBookDesigner35Dlg::OnFileOpen()
 {
 	MessageBox(L"열기");
-
-	/*CStringArray arg;
-	arg.Add(L"테스트!");
-	CallJScript(L"alert", arg);*/
 }
 
 
@@ -432,7 +458,12 @@ BOOL CNexBookDesigner35Dlg::FileCopy(CString strFrom, CString strTo)
 	return shfo.fAnyOperationsAborted;
 }
 
-
+CComVariant CNexBookDesigner35Dlg::CallJScript(const CString strFunc, const CString param)
+{
+	CStringArray arg;
+	arg.Add(param);
+	return CallJScript(strFunc, arg);
+}
 
 CComVariant CNexBookDesigner35Dlg::CallJScript(const CString strFunc, const CStringArray& paramArray)
 {
